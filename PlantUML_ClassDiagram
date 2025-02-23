@@ -4,6 +4,11 @@ interface IExamPaper {
     + assignToStudents(studentList: StudentList)
 }
 
+class ExamService implements IExamPaper {
+    + generateExam(): ExamPaper
+    + assignToStudents(studentList: StudentList)
+}
+
 abstract class AbstractUser {
     + id: UUID
     + username: String
@@ -13,10 +18,7 @@ abstract class AbstractUser {
     + last_active: DateTime
 }
 
-class User extends AbstractUser implements IExamPaper {
-    + generateExam(): ExamPaper
-    + assignToStudents(studentList: StudentList)
-}
+class User extends AbstractUser {}
 
 class UserRole {
     + id: UUID
@@ -40,7 +42,6 @@ class Student {
 class StudentList {
     + id: UUID
     + name: String
-    + exam_paper_id: UUID
     + status: Status
 }
 
@@ -117,24 +118,23 @@ class ActivityLog {
 }
 
 ' Relationships
-AbstractUser <|-- User
+IExamPaper --> StudentList : "assignToStudents()"
+ExamService "1" --> "*" ExamPaper : generates
+ExamService --> StudentList : assigns exams to
+User --> ExamService : uses
 User "1" o-- "*" ActivityLog
-User "1" *-- "*" UserSubject
-UserRole *-- User
-User "1" *-- "*" ExamPaper
-User ..|> Student : "A student cannot be a user"
+User "1" o-- "*" UserSubject
+UserRole o-- User
 UserSubject "*" -- "*" Subject
-Student "1" -- "*" StudentListMembership
-StudentList "1" -- "1..50" StudentListMembership
-StudentList --* "1" ExamPaper
-Student "*" -- "*" ExamPaper
-ExamDetail "1" --* "*" ExamPaper
-TrussDiagram "1" o-- "1" ExamPaper
-TrussDiagram "1" -- "1" TrussParameterLimit
-TrussParameterLimit "1" -- "2..3" TrussParameter
-TrussParameter "1" -- "*" ExamPaper
-ExamPaper --|> ExamOutputFormat
-ExamPaper "1" *-- "*" QuestionFile
-ExamPaper "1" *-- "1" Subject 
-UserSubject "*" -- "*" ExamPaper : "Uses same subject"
+Student "1" o-- "*" StudentListMembership
+StudentList "1" *-- "1..50" StudentListMembership
+StudentListMembership "1" --> "1" Student
+StudentList "1" --o "1" ExamPaper : "assigned to"
+ExamDetail "1" --o "*" ExamPaper
+TrussDiagram "1" --* "1" ExamPaper
+TrussDiagram "1" *-- "1" TrussParameterLimit
+TrussParameterLimit "1" o-- "2..3" TrussParameter
+ExamPaper --> ExamOutputFormat : output_format
+ExamPaper "1" o-- "*" QuestionFile
+UserSubject "*" --o "*" ExamPaper : "Uses same subject"
 @enduml
