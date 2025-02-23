@@ -1,0 +1,140 @@
+@startuml
+interface IExamPaper {
+    + generateExam(): ExamPaper
+    + assignToStudents(studentList: StudentList)
+}
+
+abstract class AbstractUser {
+    + id: UUID
+    + username: String
+    + password: String
+    + role_id: UUID
+    + status: Status
+    + last_active: DateTime
+}
+
+class User extends AbstractUser implements IExamPaper {
+    + generateExam(): ExamPaper
+    + assignToStudents(studentList: StudentList)
+}
+
+class UserRole {
+    + id: UUID
+    + role_name: String
+    + status: Status
+}
+
+enum Status {
+    Active
+    Inactive
+    Disabled
+    Archived
+}
+
+class Student {
+    + id: UUID
+    + name: String
+    + email: String
+}
+
+class StudentList {
+    + id: UUID
+    + name: String
+    + exam_paper_id: UUID
+    + status: Status
+}
+
+class StudentListMembership {
+    + student_id: UUID
+    + student_list_id: UUID
+}
+
+class Subject {
+    + id: UUID
+    + name: String
+    + code: String
+}
+
+class UserSubject {
+    + user_id: UUID
+    + subject_id: UUID
+    + status: Status
+}
+
+class ExamDetail {
+    + id: UUID
+    + year: Integer
+    + study_period: String
+    + exam_name: String
+    + supplementary: Boolean
+}
+
+class QuestionFile {
+    + id: UUID
+    + file_path: String
+    + uploaded_by: UUID
+    + status: Status
+}
+
+class TrussDiagram {
+    + id: UUID
+    + diagram_path: String
+    + status: Status
+}
+
+class TrussParameter {
+    + id: UUID
+    + name: String
+    + range_from: Integer
+    + range_to: Integer
+}
+
+class TrussParameterLimit {
+    + truss_diagram_id: UUID
+    + min_parameters: Integer = 2
+    + max_parameters: Integer = 3
+}
+
+class ExamPaper {
+    + id: UUID
+    + exam_detail_id: UUID
+    + subject_id: UUID
+    + truss_diagram_id: UUID
+    + generated_at: DateTime
+    + output_format: ExamOutputFormat
+}
+
+enum ExamOutputFormat {
+    PDF
+    DOCX
+    TXT
+}
+
+class ActivityLog {
+    + id: UUID
+    + action: String
+    + timestamp: DateTime
+}
+
+' Relationships
+AbstractUser <|-- User
+User "1" o-- "*" ActivityLog
+User "1" *-- "*" UserSubject
+UserRole *-- User
+User "1" *-- "*" ExamPaper
+User ..|> Student : "A student cannot be a user"
+UserSubject "*" -- "*" Subject
+Student "1" -- "*" StudentListMembership
+StudentList "1" -- "1..50" StudentListMembership
+StudentList --* "1" ExamPaper
+Student "*" -- "*" ExamPaper
+ExamDetail "1" --* "*" ExamPaper
+TrussDiagram "1" o-- "1" ExamPaper
+TrussDiagram "1" -- "1" TrussParameterLimit
+TrussParameterLimit "1" -- "2..3" TrussParameter
+TrussParameter "1" -- "*" ExamPaper
+ExamPaper --|> ExamOutputFormat
+ExamPaper "1" *-- "*" QuestionFile
+ExamPaper "1" *-- "1" Subject 
+UserSubject "*" -- "*" ExamPaper : "Uses same subject"
+@enduml
