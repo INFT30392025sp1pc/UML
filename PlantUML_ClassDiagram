@@ -13,9 +13,9 @@ abstract class AbstractUser {
     + id: UUID
     + username: String
     + password: String
-    + role_id: UUID
+    + role: String
     + status: Status
-    + last_active: DateTime
+    + last_active: Date
 }
 
 class User extends AbstractUser {}
