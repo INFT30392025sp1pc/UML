@@ -52,8 +52,8 @@ class StudentListMembership {
 
 class Subject {
     + id: UUID
-    + name: String
-    + code: String
+    + subject_name: String
+    + subject_code: String
 }
 
 class UserSubject {
