@@ -54,6 +54,7 @@ class Subject {
     + id: UUID
     + subject_name: String
     + subject_code: String
+    + is_active: Int
 }
 
 class UserSubject {
